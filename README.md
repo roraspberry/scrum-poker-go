@@ -1,1 +1,2 @@
-![Go CI](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/go-ci.yml/badge.svg)
+![Go CI](https://github.com/roraspberry/scrum-poker-go/actions/workflows/go-ci.yml/badge.svg)
+

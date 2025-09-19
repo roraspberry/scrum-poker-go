@@ -2,28 +2,58 @@ name: Go CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - develop
+      - 'feature/*'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - develop
+      - main
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.23'   # or whatever `go version` shows on your machine
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.6"
 
-    - name: Install dependencies
-      run: go mod tidy
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
-    - name: Build
-      run: go build ./...
+      - name: Install dependencies
+        run: go mod tidy
 
-    - name: Run tests
-      run: go test ./... -v
+      - name: Run tests
+        run: go test ./... -v
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.6"
+
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+      - name: Run golangci-lint
+        run: golangci-lint run ./...
